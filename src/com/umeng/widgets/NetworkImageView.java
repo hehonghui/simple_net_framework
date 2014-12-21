@@ -50,4 +50,11 @@ public class NetworkImageView extends ImageView {
         super(context, attrs, defStyle);
     }
 
+    /**
+     * @param url
+     */
+    public void setImageUrl(String url) {
+
+    }
+
 }
