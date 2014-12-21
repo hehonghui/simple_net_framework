@@ -32,6 +32,8 @@
 
 package com.umeng.net.core;
 
+import android.util.Log;
+
 import com.umeng.net.base.RawResponse;
 import com.umeng.net.base.Request;
 import com.umeng.net.httpstacks.HttpStack;
@@ -78,7 +80,7 @@ public final class NetworkDispatcher extends Thread {
                 mResponseDelivery.deliveryResponse(cureentRequest, response);
             }
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Log.i("", "### 请求分发器退出");
         }
 
     }

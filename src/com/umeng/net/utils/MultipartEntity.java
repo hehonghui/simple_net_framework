@@ -16,7 +16,10 @@ import java.io.OutputStream;
 import java.util.Random;
 
 /**
- * TODO : no ok, 还有待封装: StringBody, ByteArrayBody, FileBody
+ * TODO : no ok, 还有待封装: StringBody, ByteArrayBody, FileBody. see :
+ * http://stackoverflow
+ * .com/questions/16797468/how-to-send-a-multipart-form-data-
+ * post-in-android-with-volley
  * 
  * @author mrsimple
  */
@@ -26,7 +29,7 @@ public class MultipartEntity implements HttpEntity {
 
     private String boundary = null;
 
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ByteArrayOutputStream mByteArrayOutputStream = new ByteArrayOutputStream();
     boolean isSetLast = false;
     boolean isSetFirst = false;
 
@@ -44,30 +47,28 @@ public class MultipartEntity implements HttpEntity {
     }
 
     public void writeFirstBoundaryIfNeeds() {
-        if (!isSetFirst) {
-            try {
-                out.write(("--" + boundary + "\r\n").getBytes());
-            } catch (final IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        isSetFirst = true;
-    }
-
-    public void writeLastBoundaryIfNeeds() {
-        if (isSetLast) {
-            return;
-        }
-
         try {
-            out.write(("\r\n--" + boundary + "--\r\n").getBytes());
+            mByteArrayOutputStream.write(("--" + boundary + "\r\n").getBytes());
         } catch (final IOException e) {
             e.printStackTrace();
         }
-
-        isSetLast = true;
     }
+
+    //
+    // public void writeLastBoundaryIfNeeds() {
+    // if (isSetLast) {
+    // return;
+    // }
+    //
+    // try {
+    // mByteArrayOutputStream.write(("\r\n--" + boundary +
+    // "--\r\n").getBytes());
+    // } catch (final IOException e) {
+    // e.printStackTrace();
+    // }
+    //
+    // isSetLast = true;
+    // }
 
     public void addPart(final String key, final String value) {
         addPart(key, value.getBytes());
@@ -76,12 +77,18 @@ public class MultipartEntity implements HttpEntity {
     public void addPart(String key, final byte[] rawData) {
         writeFirstBoundaryIfNeeds();
         try {
-            out.write(("Content-Disposition: form-data; name=\"" + key + "\"\r\n\r\n").getBytes());
-            out.write(rawData);
-            out.write(("\r\n--" + boundary + "\r\n").getBytes());
+            mByteArrayOutputStream
+                    .write(("Content-Disposition: form-data; name=\"" + key + "\"\r\n\r\n")
+                            .getBytes());
+            mByteArrayOutputStream.write(rawData);
+            // 换行
+            mByteArrayOutputStream.write(("\r\n").getBytes());
         } catch (final IOException e) {
             e.printStackTrace();
         }
+
+        // Log.d("", "### 写入内容 :" + new
+        // String(mByteArrayOutputStream.toByteArray()));
     }
 
     /**
@@ -102,23 +109,21 @@ public class MultipartEntity implements HttpEntity {
         writeFirstBoundaryIfNeeds();
         try {
             type = "Content-Type: " + type + "\r\n";
-            out.write(("Content-Disposition: form-data; name=\"" + key + "\"; filename=\""
+            mByteArrayOutputStream.write(("Content-Disposition: form-data; name=\"" + key
+                    + "\"; filename=\""
                     + fileName + "\"\r\n").getBytes());
-            out.write(type.getBytes());
-            out.write("Content-Transfer-Encoding: binary\r\n\r\n".getBytes());
+            mByteArrayOutputStream.write(type.getBytes());
+            mByteArrayOutputStream.write("Content-Transfer-Encoding: binary\r\n\r\n".getBytes());
 
             final byte[] tmp = new byte[4096];
             int l = 0;
             while ((l = fin.read(tmp)) != -1) {
-                out.write(tmp, 0, l);
+                mByteArrayOutputStream.write(tmp, 0, l);
             }
-            if (!isLast) {
-                out.write(("\r\n--" + boundary + "\r\n").getBytes());
-            }
-            else {
-                writeLastBoundaryIfNeeds();
-            }
-            out.flush();
+            // else {
+            // writeLastBoundaryIfNeeds();
+            // }
+            mByteArrayOutputStream.flush();
         } catch (final IOException e) {
             e.printStackTrace();
         } finally {
@@ -140,8 +145,8 @@ public class MultipartEntity implements HttpEntity {
 
     @Override
     public long getContentLength() {
-        writeLastBoundaryIfNeeds();
-        return out.toByteArray().length;
+        // writeLastBoundaryIfNeeds();
+        return mByteArrayOutputStream.toByteArray().length;
     }
 
     @Override
@@ -166,8 +171,10 @@ public class MultipartEntity implements HttpEntity {
 
     @Override
     public void writeTo(final OutputStream outstream) throws IOException {
-        outstream.write(out.toByteArray());
-        // 真正的写入操作
+        final String endString = "--" + boundary + "--\r\n";
+        mByteArrayOutputStream.write(endString.getBytes());
+        //
+        outstream.write(mByteArrayOutputStream.toByteArray());
     }
 
     @Override
@@ -186,6 +193,6 @@ public class MultipartEntity implements HttpEntity {
 
     @Override
     public InputStream getContent() {
-        return new ByteArrayInputStream(out.toByteArray());
+        return new ByteArrayInputStream(mByteArrayOutputStream.toByteArray());
     }
 }

@@ -37,7 +37,6 @@ import com.umeng.net.base.Request;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
@@ -47,13 +46,10 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -69,7 +65,6 @@ public class HttpClientStack implements HttpStack {
             HttpUriRequest httpRequest = createHttpRequest(request);
             setConnectionParams(httpRequest);
             //
-            addHeaders(httpRequest, request.getHeaders());
             addHeaders(httpRequest, request.getHeaders());
             onPrepareRequest(httpRequest);
             // execute request
@@ -124,15 +119,6 @@ public class HttpClientStack implements HttpStack {
         for (String key : headers.keySet()) {
             httpRequest.setHeader(key, headers.get(key));
         }
-    }
-
-    @SuppressWarnings("unused")
-    private static List<NameValuePair> getPostParameterPairs(Map<String, String> postParams) {
-        List<NameValuePair> result = new ArrayList<NameValuePair>(postParams.size());
-        for (String key : postParams.keySet()) {
-            result.add(new BasicNameValuePair(key, postParams.get(key)));
-        }
-        return result;
     }
 
     private static void setEntityIfNonEmptyBody(HttpEntityEnclosingRequestBase httpRequest,

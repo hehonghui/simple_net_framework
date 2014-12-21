@@ -32,8 +32,6 @@
 
 package com.umeng.net.httpstacks;
 
-import android.util.Log;
-
 import com.umeng.net.base.RawResponse;
 import com.umeng.net.base.Request;
 import com.umeng.net.base.Request.HttpMethod;
@@ -137,7 +135,7 @@ public class HttpUrlConnStack implements HttpStack {
         response.setEntity(entityFromURLConnwction(connection));
         addHeadersToResponse(response, connection);
 
-        Log.d("", "请求结果 :  " + new String(response.getRawData()));
+//        Log.d("", "请求结果 :  " + new String(response.getRawData()));
         return response;
     }
 
@@ -152,11 +150,12 @@ public class HttpUrlConnStack implements HttpStack {
         InputStream inputStream = null;
         try {
             inputStream = connection.getInputStream();
-            Log.d("", "### 数据长度 : " + inputStream.available());
         } catch (IOException e) {
             e.printStackTrace();
             inputStream = connection.getErrorStream();
         }
+
+        // TODO : GZIP
 
         entity.setContent(inputStream);
         entity.setContentLength(connection.getContentLength());

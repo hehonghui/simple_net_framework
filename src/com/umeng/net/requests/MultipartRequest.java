@@ -54,6 +54,13 @@ public class MultipartRequest extends Request<String> {
         super(method, url, params, listener);
     }
 
+    /**
+     * @return
+     */
+    public MultipartEntity getMultiPartEntity() {
+        return mMultiPartEntity;
+    }
+
     @Override
     public String getBodyContentType() {
         return mMultiPartEntity.getContentType().getValue();
@@ -65,13 +72,14 @@ public class MultipartRequest extends Request<String> {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try
         {
+            // string body
             byte[] stringBody = super.getBody();
             if (stringBody != null) {
                 bos.write(super.getBody());
             }
+            // multipart body
             mMultiPartEntity.writeTo(bos);
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             Log.e("", "IOException writing to ByteArrayOutputStream");
         }
         return bos.toByteArray();
