@@ -37,6 +37,7 @@ import android.os.Looper;
 
 import com.umeng.net.base.RawResponse;
 import com.umeng.net.base.Request;
+import com.umeng.net.base.Request.RequestListener;
 
 import java.util.concurrent.Executor;
 
@@ -58,7 +59,10 @@ class ResponseDelivery implements Executor {
 
             @Override
             public void run() {
-                request.getRequestListener().onStart();
+                RequestListener<?> listener = request.getRequestListener() ;
+                if ( listener != null ) {
+                    listener.onStart();
+                }
             }
         });
 

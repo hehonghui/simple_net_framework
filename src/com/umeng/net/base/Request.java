@@ -134,7 +134,9 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      */
     public final void deliveryResponse(RawResponse response) {
         T result = parseResponse(response);
-        mRequestListener.onComplete(response.getStatusCode(), result, response.getMessage());
+        if ( mRequestListener != null && response != null ) {
+            mRequestListener.onComplete(response.getStatusCode(), result, response.getMessage());
+        }
     }
 
     public String getUrl() {

@@ -87,7 +87,11 @@ public class MultipartRequest extends Request<String> {
 
     @Override
     public String parseResponse(RawResponse response) {
-        return new String(response.getRawData());
+        if (response != null && response.getRawData() != null) {
+            return new String(response.getRawData());
+        }
+
+        return "";
     }
 
 }

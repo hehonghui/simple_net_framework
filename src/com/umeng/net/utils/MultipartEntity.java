@@ -9,7 +9,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -54,29 +53,14 @@ public class MultipartEntity implements HttpEntity {
         }
     }
 
-    //
-    // public void writeLastBoundaryIfNeeds() {
-    // if (isSetLast) {
-    // return;
-    // }
-    //
-    // try {
-    // mByteArrayOutputStream.write(("\r\n--" + boundary +
-    // "--\r\n").getBytes());
-    // } catch (final IOException e) {
-    // e.printStackTrace();
-    // }
-    //
-    // isSetLast = true;
-    // }
-
-    public void addPart(final String key, final String value) {
-        addPart(key, value.getBytes());
+    public void addStringPart(final String key, final String value) {
+        addRawPart(key, value.getBytes(), "Content-Type: text/plain; charset=UTF-8");
     }
 
-    public void addPart(String key, final byte[] rawData) {
+    private void addRawPart(String key, byte[] rawData, String type) {
         writeFirstBoundaryIfNeeds();
         try {
+            mByteArrayOutputStream.write((type + "\r\n").getBytes());
             mByteArrayOutputStream
                     .write(("Content-Disposition: form-data; name=\"" + key + "\"\r\n\r\n")
                             .getBytes());
@@ -86,32 +70,49 @@ public class MultipartEntity implements HttpEntity {
         } catch (final IOException e) {
             e.printStackTrace();
         }
-
-        // Log.d("", "### 写入内容 :" + new
-        // String(mByteArrayOutputStream.toByteArray()));
     }
 
-    /**
-     * 添加文件
-     * 
-     * @param key
-     * @param fileName
-     * @param fin
-     * @param isLast
-     */
-    public void addPart(final String key, final String fileName, final InputStream fin,
-            final boolean isLast) {
-        addPart(key, fileName, fin, "application/octet-stream", isLast);
-    }
+    public void addBinaryPart(String key, final byte[] rawData) {
+        // writeFirstBoundaryIfNeeds();
+        // try {
+        // mByteArrayOutputStream.write("application/octet-stream\r\n".getBytes());
+        // mByteArrayOutputStream
+        // .write(("Content-Disposition: form-data; name=\"" + key +
+        // "\"\r\n\r\n")
+        // .getBytes());
+        // mByteArrayOutputStream.write(rawData);
+        // // 换行
+        // mByteArrayOutputStream.write(("\r\n").getBytes());
+        // } catch (final IOException e) {
+        // e.printStackTrace();
+        // }
 
-    public void addPart(final String key, final String fileName, final InputStream fin,
-            String type, final boolean isLast) {
         writeFirstBoundaryIfNeeds();
         try {
-            type = "Content-Type: " + type + "\r\n";
+            mByteArrayOutputStream.write(("Content-Type: application/octet-stream" + "\r\n").getBytes());
+            
             mByteArrayOutputStream.write(("Content-Disposition: form-data; name=\"" + key
                     + "\"; filename=\""
-                    + fileName + "\"\r\n").getBytes());
+                    + "tempfile" + "\"\r\n").getBytes());
+            mByteArrayOutputStream.write("Content-Transfer-Encoding: binary\r\n\r\n".getBytes());
+            mByteArrayOutputStream.write(rawData);
+            // 换行
+            mByteArrayOutputStream.write(("\r\n").getBytes());
+        } catch (final IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addPart(final String key, final File file) {
+
+        InputStream fin = null;
+        writeFirstBoundaryIfNeeds();
+        try {
+            fin = new FileInputStream(file);
+            String type = "Content-Type: application/octet-stream" + "\r\n";
+            mByteArrayOutputStream.write(("Content-Disposition: form-data; name=\"" + key
+                    + "\"; filename=\""
+                    + file.getName() + "\"\r\n").getBytes());
             mByteArrayOutputStream.write(type.getBytes());
             mByteArrayOutputStream.write("Content-Transfer-Encoding: binary\r\n\r\n".getBytes());
 
@@ -120,26 +121,17 @@ public class MultipartEntity implements HttpEntity {
             while ((l = fin.read(tmp)) != -1) {
                 mByteArrayOutputStream.write(tmp, 0, l);
             }
-            // else {
-            // writeLastBoundaryIfNeeds();
-            // }
             mByteArrayOutputStream.flush();
         } catch (final IOException e) {
             e.printStackTrace();
         } finally {
             try {
-                fin.close();
+                if (fin != null) {
+                    fin.close();
+                }
             } catch (final IOException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    public void addPart(final String key, final File value, final boolean isLast) {
-        try {
-            addPart(key, value.getName(), new FileInputStream(value), isLast);
-        } catch (final FileNotFoundException e) {
-            e.printStackTrace();
         }
     }
 
@@ -172,6 +164,7 @@ public class MultipartEntity implements HttpEntity {
     @Override
     public void writeTo(final OutputStream outstream) throws IOException {
         final String endString = "--" + boundary + "--\r\n";
+        // 写入结束符
         mByteArrayOutputStream.write(endString.getBytes());
         //
         outstream.write(mByteArrayOutputStream.toByteArray());
