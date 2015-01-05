@@ -33,8 +33,9 @@
 package com.net.httpstacks;
 
 import com.net.base.Request;
-import com.net.base.Response;
 import com.net.base.Request.HttpMethod;
+import com.net.base.Response;
+import com.net.config.HttpUrlConnConfig;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -55,6 +56,9 @@ import java.net.URLConnection;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocketFactory;
 
 /**
  * @author mrsimple
@@ -80,13 +84,33 @@ public class HttpUrlConnStack implements HttpStack {
     }
 
     private HttpURLConnection createUrlConnection(String url) throws IOException {
-        URLConnection urlConnection = new URL(url).openConnection();
+        URL newURL = new URL(url);
+        URLConnection urlConnection = newURL.openConnection();
         // TODO : TIME OUT SET IN REQUEST
         urlConnection.setConnectTimeout(5000);
         urlConnection.setReadTimeout(20000);
         urlConnection.setDoInput(true);
         urlConnection.setUseCaches(false);
+        // https 配置
+        configHttps(newURL);
         return (HttpURLConnection) urlConnection;
+    }
+
+    private void configHttps(URL url) {
+        if (isHttps(url)) {
+            HttpUrlConnConfig config = HttpUrlConnConfig.getConfig();
+            SSLSocketFactory sslFactory = config.getSslSocketFactory();
+            // 配置https
+            if (sslFactory != null) {
+                HttpsURLConnection.setDefaultSSLSocketFactory(sslFactory);
+                HttpsURLConnection.setDefaultHostnameVerifier(config.getHostnameVerifier());
+            }
+
+        }
+    }
+
+    private boolean isHttps(URL url) {
+        return url != null && url.getProtocol().equals("https");
     }
 
     private void setRequestHeaders(HttpURLConnection connection, Request<?> request) {
@@ -135,7 +159,7 @@ public class HttpUrlConnStack implements HttpStack {
         response.setEntity(entityFromURLConnwction(connection));
         addHeadersToResponse(response, connection);
 
-//        Log.d("", "请求结果 :  " + new String(response.getRawData()));
+        // Log.d("", "请求结果 :  " + new String(response.getRawData()));
         return response;
     }
 

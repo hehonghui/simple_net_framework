@@ -34,6 +34,7 @@ package com.net.httpstacks;
 
 import com.net.base.Request;
 import com.net.base.Response;
+import com.net.config.HttpClientConfig;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -44,6 +45,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpConnectionParams;
@@ -57,6 +60,7 @@ import java.util.Map;
  */
 public class HttpClientStack implements HttpStack {
 
+    // TODO : replace with AndroidHttpClient, thread safe
     HttpClient mHttpClient = new DefaultHttpClient();
 
     @Override
@@ -67,6 +71,7 @@ public class HttpClientStack implements HttpStack {
             //
             addHeaders(httpRequest, request.getHeaders());
             onPrepareRequest(httpRequest);
+            configHttps(request);
             // execute request
             HttpResponse response = mHttpClient.execute(httpRequest);
             Response rawResponse = new Response(response.getStatusLine());
@@ -76,6 +81,14 @@ public class HttpClientStack implements HttpStack {
         }
 
         return null;
+    }
+
+    private void configHttps(Request<?> request) {
+        SSLSocketFactory sslSocketFactory = HttpClientConfig.getConfig().getSocketFactory();
+        if (request.isHttps() && sslSocketFactory != null) {
+            Scheme sch = new Scheme("https", sslSocketFactory, 443);
+            mHttpClient.getConnectionManager().getSchemeRegistry().register(sch);
+        }
     }
 
     private void setConnectionParams(HttpUriRequest httpUriRequest) {

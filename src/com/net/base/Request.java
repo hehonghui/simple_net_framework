@@ -186,6 +186,10 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         return mParams;
     }
 
+    public boolean isHttps() {
+        return mUrl.startsWith("https");
+    }
+
     /**
      * 该请求是否应该缓存
      * 
