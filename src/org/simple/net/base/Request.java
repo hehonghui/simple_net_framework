@@ -123,15 +123,9 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      * @param listener
      */
     public Request(HttpMethod method, String url, RequestListener<T> listener) {
-        this(method, url, new HashMap<String, String>(), listener);
-    }
-
-    public Request(HttpMethod method, String url, Map<String, String> params,
-            RequestListener<T> listener) {
         mHttpMethod = method;
         mUrl = url;
         mRequestListener = listener;
-        mBodyParams = params;
     }
 
     /**
@@ -140,8 +134,6 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      * @param response
      * @return
      */
-    // public abstract Response<T> parseResponse(RawResponse response);
-
     public abstract T parseResponse(Response response);
 
     /**
@@ -322,8 +314,6 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      * @param <T> 请求的response类型
      */
     public static interface RequestListener<T> {
-        public void onStart();
-
         /**
          * 请求完成的回调
          * 

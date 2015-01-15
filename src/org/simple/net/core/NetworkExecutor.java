@@ -76,7 +76,6 @@ public final class NetworkExecutor extends Thread {
                     Log.d("### ", "### 取消执行了");
                     continue;
                 }
-                mResponseDelivery.requestStart(request);
                 Response response = null;
                 if (isUseCache(request)) {
                     // 从缓存中取

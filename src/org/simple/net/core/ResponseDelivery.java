@@ -29,11 +29,12 @@ import android.os.Looper;
 
 import org.simple.net.base.Request;
 import org.simple.net.base.Response;
-import org.simple.net.base.Request.RequestListener;
 
 import java.util.concurrent.Executor;
 
 /**
+ * 请求结果投递类,将请求结果投递给UI线程
+ * 
  * @author mrsimple
  */
 class ResponseDelivery implements Executor {
@@ -44,23 +45,8 @@ class ResponseDelivery implements Executor {
     Handler mResponseHandler = new Handler(Looper.getMainLooper());
 
     /**
-     * @param request
-     */
-    public void requestStart(final Request<?> request) {
-        execute(new Runnable() {
-
-            @Override
-            public void run() {
-                RequestListener<?> listener = request.getRequestListener() ;
-                if ( listener != null ) {
-                    listener.onStart();
-                }
-            }
-        });
-
-    }
-
-    /**
+     * 处理请求结果,将其执行在UI线程
+     * 
      * @param request
      * @param response
      */

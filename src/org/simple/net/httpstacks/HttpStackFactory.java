@@ -27,6 +27,8 @@ package org.simple.net.httpstacks;
 import android.os.Build;
 
 /**
+ * 根据api版本选择HttpClient或者HttpURLConnection
+ * 
  * @author mrsimple
  */
 public final class HttpStackFactory {

@@ -29,13 +29,10 @@ import org.json.JSONObject;
 import org.simple.net.base.Request;
 import org.simple.net.base.Response;
 
-import java.util.Map;
-
 public class JsonRequest extends Request<JSONObject> {
 
-    public JsonRequest(HttpMethod method, String url, Map<String, String> params,
-            org.simple.net.base.Request.RequestListener<JSONObject> listener) {
-        super(method, url, params, listener);
+    public JsonRequest(HttpMethod method, String url,RequestListener<JSONObject> listener) {
+        super(method, url, listener);
     }
 
     @Override

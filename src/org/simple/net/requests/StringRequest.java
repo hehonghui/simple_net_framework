@@ -27,18 +27,10 @@ package org.simple.net.requests;
 import org.simple.net.base.Request;
 import org.simple.net.base.Response;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class StringRequest extends Request<String> {
 
     public StringRequest(HttpMethod method, String url, RequestListener<String> listener) {
-        this(method, url, new HashMap<String, String>(), listener);
-    }
-
-    public StringRequest(HttpMethod method, String url,
-            Map<String, String> params, RequestListener<String> listener) {
-        super(method, url, params, listener);
+        super(method, url, listener);
     }
 
     @Override
