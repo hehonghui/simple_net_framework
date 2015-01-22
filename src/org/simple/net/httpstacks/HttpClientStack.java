@@ -44,7 +44,6 @@ import org.simple.net.base.Request;
 import org.simple.net.base.Response;
 import org.simple.net.config.HttpClientConfig;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -55,11 +54,11 @@ import java.util.Map;
 public class HttpClientStack implements HttpStack {
 
     /**
-     * 
+     * 使用HttpClient执行网络请求时的Https配置
      */
     HttpClientConfig mConfig = HttpClientConfig.getConfig();
     /**
-     * 
+     * HttpClient
      */
     HttpClient mHttpClient = AndroidHttpClient.newInstance(mConfig.userAgent);
 
@@ -67,14 +66,17 @@ public class HttpClientStack implements HttpStack {
     public Response performRequest(Request<?> request) {
         try {
             HttpUriRequest httpRequest = createHttpRequest(request);
+            // 添加连接参数
             setConnectionParams(httpRequest);
-            //
+            // 添加header
             addHeaders(httpRequest, request.getHeaders());
-            onPrepareRequest(httpRequest);
+            // https配置
             configHttps(request);
-            // execute request
+            // 执行请求
             HttpResponse response = mHttpClient.execute(httpRequest);
+            // 构建Response
             Response rawResponse = new Response(response.getStatusLine());
+            // 设置Entity
             rawResponse.setEntity(response.getEntity());
             return rawResponse;
         } catch (Exception e) {
@@ -83,6 +85,11 @@ public class HttpClientStack implements HttpStack {
         return null;
     }
 
+    /**
+     * 如果是https请求,则使用用户配置的SSLSocketFactory进行配置.
+     * 
+     * @param request
+     */
     private void configHttps(Request<?> request) {
         SSLSocketFactory sslSocketFactory = mConfig.getSocketFactory();
         if (request.isHttps() && sslSocketFactory != null) {
@@ -91,6 +98,11 @@ public class HttpClientStack implements HttpStack {
         }
     }
 
+    /**
+     * 设置连接参数,这里比较简单啊.一些优化设置就没有写了.
+     * 
+     * @param httpUriRequest
+     */
     private void setConnectionParams(HttpUriRequest httpUriRequest) {
         HttpParams httpParams = httpUriRequest.getParams();
         HttpConnectionParams.setConnectionTimeout(httpParams, mConfig.connTimeOut);
@@ -98,7 +110,10 @@ public class HttpClientStack implements HttpStack {
     }
 
     /**
-     * Creates the appropriate subclass of HttpUriRequest for passed in request.
+     * 根据请求类型创建不同的Http请求
+     * 
+     * @param request
+     * @return
      */
     static HttpUriRequest createHttpRequest(Request<?> request) {
         HttpUriRequest httpUriRequest = null;
@@ -134,6 +149,12 @@ public class HttpClientStack implements HttpStack {
         }
     }
 
+    /**
+     * 将请求参数设置到HttpEntity中
+     * 
+     * @param httpRequest
+     * @param request
+     */
     private static void setEntityIfNonEmptyBody(HttpEntityEnclosingRequestBase httpRequest,
             Request<?> request) {
         byte[] body = request.getBody();
@@ -142,15 +163,4 @@ public class HttpClientStack implements HttpStack {
             httpRequest.setEntity(entity);
         }
     }
-
-    /**
-     * Called before the request is executed using the underlying HttpClient.
-     * <p>
-     * Overwrite in subclasses to augment the request.
-     * </p>
-     */
-    protected void onPrepareRequest(HttpUriRequest request) throws IOException {
-        // Nothing.
-    }
-
 }

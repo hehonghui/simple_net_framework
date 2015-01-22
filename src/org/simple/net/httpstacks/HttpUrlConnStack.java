@@ -33,8 +33,8 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.simple.net.base.Request;
-import org.simple.net.base.Response;
 import org.simple.net.base.Request.HttpMethod;
+import org.simple.net.base.Response;
 import org.simple.net.config.HttpUrlConnConfig;
 
 import java.io.DataOutputStream;
@@ -52,19 +52,29 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 
 /**
+ * 使用HttpURLConnection执行网络请求的HttpStack
+ * 
  * @author mrsimple
  */
 public class HttpUrlConnStack implements HttpStack {
 
+    /**
+     * 配置Https
+     */
     HttpUrlConnConfig mConfig = HttpUrlConnConfig.getConfig();
 
     @Override
     public Response performRequest(Request<?> request) {
         HttpURLConnection urlConnection = null;
         try {
+            // 构建HttpURLConnection
             urlConnection = createUrlConnection(request.getUrl());
+            // 设置headers
             setRequestHeaders(urlConnection, request);
+            // 设置Body参数
             setRequestParams(urlConnection, request);
+            // https 配置
+            configHttps(request);
             return fetchResponse(urlConnection);
         } catch (Exception e) {
             e.printStackTrace();
@@ -79,18 +89,15 @@ public class HttpUrlConnStack implements HttpStack {
     private HttpURLConnection createUrlConnection(String url) throws IOException {
         URL newURL = new URL(url);
         URLConnection urlConnection = newURL.openConnection();
-        // TODO : TIME OUT SET IN REQUEST
         urlConnection.setConnectTimeout(mConfig.connTimeOut);
         urlConnection.setReadTimeout(mConfig.soTimeOut);
         urlConnection.setDoInput(true);
         urlConnection.setUseCaches(false);
-        // https 配置
-        configHttps(newURL);
         return (HttpURLConnection) urlConnection;
     }
 
-    private void configHttps(URL url) {
-        if (isHttps(url)) {
+    private void configHttps(Request<?> request) {
+        if (request.isHttps()) {
             SSLSocketFactory sslFactory = mConfig.getSslSocketFactory();
             // 配置https
             if (sslFactory != null) {
@@ -99,10 +106,6 @@ public class HttpUrlConnStack implements HttpStack {
             }
 
         }
-    }
-
-    private boolean isHttps(URL url) {
-        return url != null && url.getProtocol().equals("https");
     }
 
     private void setRequestHeaders(HttpURLConnection connection, Request<?> request) {
@@ -122,7 +125,8 @@ public class HttpUrlConnStack implements HttpStack {
             // enable output
             connection.setDoOutput(true);
             // set content type
-            connection.addRequestProperty(Request.HEADER_CONTENT_TYPE, request.getBodyContentType());
+            connection
+                    .addRequestProperty(Request.HEADER_CONTENT_TYPE, request.getBodyContentType());
             // write params data to connection
             DataOutputStream dataOutputStream = new DataOutputStream(connection.getOutputStream());
             dataOutputStream.write(body);
@@ -136,10 +140,6 @@ public class HttpUrlConnStack implements HttpStack {
         ProtocolVersion protocolVersion = new ProtocolVersion("HTTP", 1, 1);
         int responseCode = connection.getResponseCode();
         if (responseCode == -1) {
-            // -1 is returned by getResponseCode() if the response code could
-            // not be retrieved.
-            // Signal to the caller that something was wrong with the
-            // connection.
             throw new IOException("Could not retrieve response code from HttpUrlConnection.");
         }
         // 状态行数据
@@ -150,8 +150,6 @@ public class HttpUrlConnStack implements HttpStack {
         // 设置response数据
         response.setEntity(entityFromURLConnwction(connection));
         addHeadersToResponse(response, connection);
-
-        // Log.d("", "请求结果 :  " + new String(response.getRawData()));
         return response;
     }
 
@@ -171,8 +169,7 @@ public class HttpUrlConnStack implements HttpStack {
             inputStream = connection.getErrorStream();
         }
 
-        // TODO : GZIP
-
+        // TODO : GZIP 
         entity.setContent(inputStream);
         entity.setContentLength(connection.getContentLength());
         entity.setContentEncoding(connection.getContentEncoding());
