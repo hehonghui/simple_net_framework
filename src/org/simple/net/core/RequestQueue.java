@@ -27,6 +27,7 @@ package org.simple.net.core;
 import android.util.Log;
 
 import org.simple.net.base.Request;
+import org.simple.net.httpstacks.HttpStack;
 import org.simple.net.httpstacks.HttpStackFactory;
 
 import java.util.concurrent.BlockingQueue;
@@ -49,46 +50,49 @@ public final class RequestQueue {
     private AtomicInteger mSerialNumGenerator = new AtomicInteger(0);
 
     /**
+     * 默认的核心数
+     */
+    public static int DEFAULT_CORE_NUMS = Runtime.getRuntime().availableProcessors() + 1;
+    /**
      * CPU核心数 + 1个分发线程数
      */
-    private int mDispatcherNums = Runtime.getRuntime().availableProcessors() + 1;
+    private int mDispatcherNums = DEFAULT_CORE_NUMS;
     /**
-     * 
+     * NetworkExecutor,执行网络请求的线程
      */
     private NetworkExecutor[] mDispatchers = null;
+    /**
+     * Http请求的真正执行者
+     */
+    private HttpStack mHttpStack;
 
     /**
-     * private constructor
+     * @param coreNums 线程核心数
      */
-    private RequestQueue() {
+    protected RequestQueue(int coreNums, HttpStack httpStack) {
+        mDispatcherNums = coreNums;
+        mHttpStack = httpStack != null ? httpStack : HttpStackFactory.createHttpStack();
     }
 
     /**
-     * @return
+     * 启动NetworkExecutor
      */
-    public static RequestQueue newRequestQueue() {
-        RequestQueue queue = new RequestQueue();
-        queue.start();
-        return queue;
-    }
-
-    /**
-     * 
-     */
-    private final void startNetworkDispatchers() {
+    private final void startNetworkExecutors() {
         mDispatchers = new NetworkExecutor[mDispatcherNums];
         for (int i = 0; i < mDispatcherNums; i++) {
-            mDispatchers[i] = new NetworkExecutor(mRequestQueue,
-                    HttpStackFactory.createHttpStack());
+            mDispatchers[i] = new NetworkExecutor(mRequestQueue, mHttpStack);
             mDispatchers[i].start();
         }
     }
 
     public void start() {
         stop();
-        startNetworkDispatchers();
+        startNetworkExecutors();
     }
 
+    /**
+     * 停止NetworkExecutor
+     */
     public void stop() {
         if (mDispatchers != null && mDispatchers.length > 0) {
             for (int i = 0; i < mDispatchers.length; i++) {
@@ -119,6 +123,11 @@ public final class RequestQueue {
         return mRequestQueue;
     }
 
+    /**
+     * 为每个请求生成一个系列号
+     * 
+     * @return 序列号
+     */
     private int generateSerialNumber() {
         return mSerialNumGenerator.incrementAndGet();
     }

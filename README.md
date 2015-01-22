@@ -6,7 +6,7 @@
 ```java   
 
     // 1、构建请求队列
-    RequestQueue queue = RequestQueue.newRequestQueue();  
+    RequestQueue queue = SimpleNet.newRequestQueue();  
   
 	// 2、创建请求
     MultipartRequest multipartRequest = new MultipartRequest("你的url", new 	RequestListener<String>() {

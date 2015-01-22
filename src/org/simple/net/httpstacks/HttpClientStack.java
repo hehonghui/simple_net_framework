@@ -111,13 +111,13 @@ public class HttpClientStack implements HttpStack {
                 break;
             case POST: {
                 httpUriRequest = new HttpPost(request.getUrl());
-                httpUriRequest.addHeader(HEADER_CONTENT_TYPE, request.getBodyContentType());
+                httpUriRequest.addHeader(Request.HEADER_CONTENT_TYPE, request.getBodyContentType());
                 setEntityIfNonEmptyBody((HttpPost) httpUriRequest, request);
             }
                 break;
             case PUT: {
                 httpUriRequest = new HttpPut(request.getUrl());
-                httpUriRequest.addHeader(HEADER_CONTENT_TYPE, request.getBodyContentType());
+                httpUriRequest.addHeader(Request.HEADER_CONTENT_TYPE, request.getBodyContentType());
                 setEntityIfNonEmptyBody((HttpPut) httpUriRequest, request);
             }
                 break;

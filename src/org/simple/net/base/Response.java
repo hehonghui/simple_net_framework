@@ -33,6 +33,7 @@ import org.apache.http.util.EntityUtils;
 import java.io.IOException;
 
 /**
+ * 请求结果类,继承自BasicHttpResponse,将结果存储在rawData中.
  * @author mrsimple
  */
 public class Response extends BasicHttpResponse {
@@ -65,29 +66,8 @@ public class Response extends BasicHttpResponse {
         return getStatusLine().getReasonPhrase();
     }
 
-    // private byte[] inputStreamToByteArray(InputStream inputStream) throws
-    // IOException {
-    // ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    // byte[] oneKB = new byte[1024];
-    // int length = 0;
-    // while (-1 != (length = inputStream.read(oneKB))) {
-    // bos.write(oneKB, 0, length);
-    // }
-    // return bos.toByteArray();
-    // }
-
     /** Reads the contents of HttpEntity into a byte[]. */
     private byte[] entityToBytes(HttpEntity entity) {
-        // byte[] arrayData = new byte[0];
-        // try {
-        // InputStream inputStream = entity.getContent();
-        //
-        // return inputStreamToByteArray(inputStream);
-        // } catch (IOException e) {
-        // e.printStackTrace();
-        // }
-
-        // return arrayData;
         try {
             return EntityUtils.toByteArray(entity);
         } catch (IOException e) {

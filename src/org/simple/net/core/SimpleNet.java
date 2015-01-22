@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2014-2015 bboyfeiyu@gmail.com, Inc
+ * Copyright (c) 2014-2015 bboyfeiyu@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,36 +22,44 @@
  * THE SOFTWARE.
  */
 
-package org.simple.net.requests;
+package org.simple.net.core;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.simple.net.base.Request;
-import org.simple.net.base.Response;
+import org.simple.net.httpstacks.HttpStack;
 
 /**
- * 返回的数据类型为Json的请求, Json对应的对象类型为JSONObject
- * 
+ * SimpleNet入口
  * @author mrsimple
  */
-public class JsonRequest extends Request<JSONObject> {
-
-    public JsonRequest(HttpMethod method, String url, RequestListener<JSONObject> listener) {
-        super(method, url, listener);
+public final class SimpleNet {
+    /**
+     * 创建一个请求队列,NetworkExecutor数量为默认的数量
+     * 
+     * @return
+     */
+    public static RequestQueue newRequestQueue() {
+        return newRequestQueue(RequestQueue.DEFAULT_CORE_NUMS);
     }
 
-    
     /**
-     * 将Response的结果转换为JSONObject
+     * 创建一个请求队列,NetworkExecutor数量为coreNums
+     * 
+     * @param coreNums
+     * @return
      */
-    @Override
-    public JSONObject parseResponse(Response response) {
-        String jsonString = new String(response.getRawData());
-        try {
-            return new JSONObject(jsonString);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public static RequestQueue newRequestQueue(int coreNums) {
+        return newRequestQueue(coreNums, null);
+    }
+
+    /**
+     * 创建一个请求队列,NetworkExecutor数量为coreNums
+     * 
+     * @param coreNums 线程数量
+     * @param httpStack 网络执行者
+     * @return
+     */
+    public static RequestQueue newRequestQueue(int coreNums, HttpStack httpStack) {
+        RequestQueue queue = new RequestQueue(Math.max(0, coreNums), httpStack);
+        queue.start();
+        return queue;
     }
 }

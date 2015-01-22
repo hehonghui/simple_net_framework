@@ -28,14 +28,15 @@ import org.simple.net.base.Request;
 import org.simple.net.base.Response;
 
 /**
+ * 执行网络请求的接口
+ * 
  * @author mrsimple
  */
 public interface HttpStack {
-
-    public final static String HEADER_CONTENT_TYPE = "Content-Type";
-
     /**
-     * @param request
+     * 执行Http请求
+     * 
+     * @param request 待执行的请求
      * @return
      */
     public Response performRequest(Request<?> request);

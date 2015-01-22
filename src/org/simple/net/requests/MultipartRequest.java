@@ -62,12 +62,6 @@ public class MultipartRequest extends Request<String> {
     public byte[] getBody() {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-
-            // 如果通过Body Params设置了参数也接收
-            byte[] bodyParams = super.getBody();
-            if (bodyParams != null) {
-                bos.write(bodyParams);
-            }
             // 将MultipartEntity中的参数写入到bos中
             mMultiPartEntity.writeTo(bos);
         } catch (IOException e) {

@@ -79,7 +79,11 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      * Default encoding for POST or PUT parameters. See
      * {@link #getParamsEncoding()}.
      */
-    private static final String DEFAULT_PARAMS_ENCODING = "UTF-8";
+    public static final String DEFAULT_PARAMS_ENCODING = "UTF-8";
+    /**
+     * Default Content-type
+     */
+    public final static String HEADER_CONTENT_TYPE = "Content-Type";
     /**
      * 请求序列号
      */
@@ -137,7 +141,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     public abstract T parseResponse(Response response);
 
     /**
-     * 处理结果
+     * 处理Response,该方法运行在UI线程.
      * 
      * @param response
      */

@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2014-2015 bboyfeiyu@gmail.com, Inc
+ * Copyright (c) 2014-2015 bboyfeiyu@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,7 +39,7 @@ import java.util.concurrent.BlockingQueue;
  * 
  * @author mrsimple
  */
-public final class NetworkExecutor extends Thread {
+final class NetworkExecutor extends Thread {
 
     /**
      * 网络请求队列
@@ -52,11 +52,11 @@ public final class NetworkExecutor extends Thread {
     /**
      * 结果分发器,将结果投递到主线程
      */
-    private ResponseDelivery mResponseDelivery = new ResponseDelivery();
+    private static ResponseDelivery mResponseDelivery = new ResponseDelivery();
     /**
      * 请求缓存
      */
-    private static volatile Cache<String, Response> mReqCache = new LruMemCache();
+    private static Cache<String, Response> mReqCache = new LruMemCache();
     /**
      * 是否停止
      */

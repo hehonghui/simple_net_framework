@@ -29,11 +29,12 @@ import android.test.AndroidTestCase;
 import org.simple.net.base.Request.HttpMethod;
 import org.simple.net.base.Request.RequestListener;
 import org.simple.net.core.RequestQueue;
+import org.simple.net.core.SimpleNet;
 import org.simple.net.requests.StringRequest;
 
 public class RequestQueueTest extends AndroidTestCase {
 
-    RequestQueue mQueue = RequestQueue.newRequestQueue();
+    RequestQueue mQueue = SimpleNet.newRequestQueue();
 
     protected void setUp() throws Exception {
         super.setUp();

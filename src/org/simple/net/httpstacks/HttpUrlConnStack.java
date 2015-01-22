@@ -122,7 +122,7 @@ public class HttpUrlConnStack implements HttpStack {
             // enable output
             connection.setDoOutput(true);
             // set content type
-            connection.addRequestProperty(HEADER_CONTENT_TYPE, request.getBodyContentType());
+            connection.addRequestProperty(Request.HEADER_CONTENT_TYPE, request.getBodyContentType());
             // write params data to connection
             DataOutputStream dataOutputStream = new DataOutputStream(connection.getOutputStream());
             dataOutputStream.write(body);
