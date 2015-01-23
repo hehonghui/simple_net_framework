@@ -34,6 +34,7 @@ import java.io.IOException;
 
 /**
  * 请求结果类,继承自BasicHttpResponse,将结果存储在rawData中.
+ * 
  * @author mrsimple
  */
 public class Response extends BasicHttpResponse {
@@ -75,5 +76,4 @@ public class Response extends BasicHttpResponse {
         }
         return new byte[0];
     }
-
 }
