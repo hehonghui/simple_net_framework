@@ -47,7 +47,7 @@ import org.simple.net.config.HttpClientConfig;
 import java.util.Map;
 
 /**
- * api 9以下使用HttpClient执行网络请求
+ * api 9以下使用HttpClient执行网络请求, https配置参考http://jackyrong.iteye.com/blog/1606444
  * 
  * @author mrsimple
  */

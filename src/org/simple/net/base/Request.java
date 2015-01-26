@@ -261,7 +261,8 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         Priority myPriority = this.getPriority();
         Priority anotherPriority = another.getPriority();
         // 如果优先级相等,那么按照添加到队列的序列号顺序来执行
-        return myPriority.equals(another) ? this.getSerialNumber() - another.getSerialNumber()
+        return myPriority.equals(anotherPriority) ? this.getSerialNumber()
+                - another.getSerialNumber()
                 : myPriority.ordinal() - anotherPriority.ordinal();
     }
 
