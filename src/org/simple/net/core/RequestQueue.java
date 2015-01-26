@@ -68,6 +68,7 @@ public final class RequestQueue {
 
     /**
      * @param coreNums 线程核心数
+     * @param httpStack http执行器
      */
     protected RequestQueue(int coreNums, HttpStack httpStack) {
         mDispatcherNums = coreNums;

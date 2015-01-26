@@ -47,7 +47,7 @@ import org.simple.net.config.HttpClientConfig;
 import java.util.Map;
 
 /**
- * api 9以下使用HttpClient执行网络请求 TODO : 添加Abs层
+ * api 9以下使用HttpClient执行网络请求
  * 
  * @author mrsimple
  */
