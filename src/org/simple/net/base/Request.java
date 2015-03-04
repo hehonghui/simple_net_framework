@@ -132,6 +132,10 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         mRequestListener = listener;
     }
 
+    public void addHeader(String name, String value) {
+        mHeaders.put(name, value);
+    }
+
     /**
      * 从原生的网络请求中解析结果
      * 
